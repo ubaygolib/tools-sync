@@ -1,0 +1,47 @@
+name: Daler forwarder
+
+on:
+  schedule:
+    # Private repo: "*/30" (har 30 daqiqa) bepul daqiqa limitiga sig'adi.
+    # Public repo: "*/10" (har 10 daqiqa) ham cheksiz bepul.
+    - cron: "*/30 * * * *"
+  workflow_dispatch:          # qo'lda ishga tushirish tugmasi
+
+# Ikki ishga tushirish bir vaqtda bir sessiya bilan ulanmasligi uchun
+concurrency:
+  group: forwarder
+  cancel-in-progress: false
+
+permissions:
+  contents: write             # state.json ni repoga saqlash uchun
+
+jobs:
+  forward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Kutubxonalarni o'rnatish
+        run: npm install --no-audit --no-fund
+
+      - name: Forward qilish
+        run: node poll.js
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+          SESSION_STRING: ${{ secrets.SESSION_STRING }}
+          SOURCE_GROUP_ID: ${{ secrets.SOURCE_GROUP_ID }}
+          TARGET_CHANNEL_ID: ${{ secrets.TARGET_CHANNEL_ID }}
+          DALER_USER_ID: ${{ secrets.DALER_USER_ID }}
+
+      - name: Oxirgi xabar ID sini saqlash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git diff --staged --quiet || (git commit -m "state: oxirgi xabar ID" && git push)

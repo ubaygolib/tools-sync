@@ -44,7 +44,12 @@ function setState(lastId) {
     process.exit(0);
   }
 
-  const messages = await client.getMessages(source, { minId: lastId, limit: 300 });
+  // Oxirgi ko'rilgan xabardan keyingi BARCHA yangi xabarlarni yig'amiz (sahifalab, hech biri tushib qolmasin).
+  // Jadval necha soat kechiksa ham, oraliqdagi xabarlar yo'qolmaydi.
+  const messages = [];
+  for await (const m of client.iterMessages(source, { minId: lastId, limit: 2000 })) {
+    messages.push(m);
+  }
 
   // Eski xabardan yangisiga qarab ketma-ket
   for (const message of messages.reverse()) {

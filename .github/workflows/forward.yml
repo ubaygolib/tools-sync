@@ -4,7 +4,7 @@ on:
   schedule:
     # Private repo: "*/30" (har 30 daqiqa) bepul daqiqa limitiga sig'adi.
     # Public repo: "*/10" (har 10 daqiqa) ham cheksiz bepul.
-    - cron: "*/5 * * * *"
+        - cron: "17 * * * *"
   workflow_dispatch:          # qo'lda ishga tushirish tugmasi
 
 # Ikki ishga tushirish bir vaqtda bir sessiya bilan ulanmasligi uchun

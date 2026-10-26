@@ -4,7 +4,7 @@ on:
   schedule:
     # Private repo: "*/30" (har 30 daqiqa) bepul daqiqa limitiga sig'adi.
     # Public repo: "*/10" (har 10 daqiqa) ham cheksiz bepul.
-        - cron: "17 * * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:          # qo'lda ishga tushirish tugmasi
 
 # Ikki ishga tushirish bir vaqtda bir sessiya bilan ulanmasligi uchun
@@ -44,4 +44,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add state.json
-          git diff --staged --quiet || (git commit -m "state: oxirgi xabar ID" && git push)
+          if ! git diff --staged --quiet; then
+            git commit -m "state: oxirgi xabar ID"
+            git pull --rebase -X theirs origin main
+            git push
+          fi
